@@ -42,29 +42,16 @@ def download():
         'yt-dlp.exe',
         url,
         '--cookies', cookies_path,
-        '-f', f'bestvideo[height<={resolution}]+bestaudio',
-        '-o', os.path.join(DOWNLOAD_FOLDER, f"{filename}.%(ext)s")
+        '-f', f"bv[ext=mp4][vcodec*=avc][height<={resolution}]+ba[ext=m4a]",
+        '--merge-output-format', 'mp4',
+        '-o', os.path.join(DOWNLOAD_FOLDER, f"{filename}_merged.%(ext)s")
     ]
+    
+    print(ytdlp_cmd[-1])
 
     try:
         flash("Download Selesai...")
         subprocess.run(ytdlp_cmd, check=True)
-
-        # Gabungkan video dan audio menggunakan ffmpeg.exe
-        ffmpeg_cmd = [
-            'ffmpeg.exe', '-y',
-            '-i', video_path,
-            '-i', audio_path,
-            '-c:v', 'copy',
-            '-c:a', 'aac',
-            output_path
-        ]
-        subprocess.run(ffmpeg_cmd, check=True)
-
-        # Hapus file terpisah jika berhasil
-        os.remove(video_path)
-        os.remove(audio_path)
-        os.remove(cookies_path)
 
         flash("Download selesai. File siap diunduh.")
         return send_file(output_path, as_attachment=True)
